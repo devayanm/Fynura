@@ -1,0 +1,23 @@
+frontend/
+│
+├── components/
+│   ├── Navbar.js
+│   ├── Footer.js
+│   ├── ProjectCard.js
+│   ├── ProjectForm.js
+│   └── ...
+│
+├── pages/
+│   ├── HomePage.js
+│   ├── LoginPage.js
+│   ├── RegisterPage.js
+│   ├── ProfilePage.js
+│   └── ProjectPage.js
+│
+├── utils/
+│   ├── api.js
+│   └── auth.js
+│
+├── App.js
+├── index.js
+└── styles.css
