@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import ProjectCard from '../components/ProjectCard';
+import ProjectForm from '../components/ProjectForm';
+import { useAuth } from '../utils/auth'; // Use AuthContext to get current user
 
 const ProfilePage = () => {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [projects, setProjects] = useState([]);
-
-  const fetchUserProfile = async () => {
-    try {
-      const response = await api.get('/auth/me'); // Endpoint for fetching user profile
-      setUser(response.data);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  };
+  const [showForm, setShowForm] = useState(false);
 
   const fetchUserProjects = async () => {
     try {
@@ -25,23 +19,40 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    fetchUserProfile();
+    if (user) {
+      fetchUserProjects();
+    }
+  }, [user]);
+
+  const handleProjectCreated = () => {
+    setShowForm(false);
     fetchUserProjects();
-  }, []);
+  };
 
   return (
-    <div>
+    <div className="container">
       {user && (
         <div>
           <h2>{user.name}'s Profile</h2>
           <p>Email: {user.email}</p>
+          <button
+            className="btn btn-primary mb-3"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? 'Cancel' : 'Create New Project'}
+          </button>
+          {showForm && <ProjectForm onProjectCreated={handleProjectCreated} />}
           <h3>My Projects</h3>
           <div className="row">
-            {projects.map((project) => (
-              <div className="col-md-4" key={project._id}>
-                <ProjectCard project={project} />
-              </div>
-            ))}
+            {projects.length > 0 ? (
+              projects.map((project) => (
+                <div className="col-md-4 mb-3" key={project._id}>
+                  <ProjectCard project={project} />
+                </div>
+              ))
+            ) : (
+              <p>No projects found.</p>
+            )}
           </div>
         </div>
       )}

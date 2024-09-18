@@ -1,28 +1,18 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ProfilePage from "./pages/ProfilePage";
-import ProjectPage from "./pages/ProjectPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import RoutesConfig from "./routes";
+import { AuthProvider } from "./utils/auth";
 
 function App() {
   return (
-    <React.StrictMode>
+    <AuthProvider>
       <Navbar />
       <div className="container mt-4">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/project/:id" element={<ProjectPage />} />
-        </Routes>
+        <RoutesConfig />
       </div>
       <Footer />
-    </React.StrictMode>
+    </AuthProvider>
   );
 }
 
