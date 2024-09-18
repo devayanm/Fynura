@@ -1,0 +1,32 @@
+backend/
+│
+├── controllers/
+│   ├── authController.js
+│   ├── projectController.js
+│   └── userController.js
+│
+├── models/
+│   ├── User.js
+│   ├── Project.js
+│   └── ...
+│
+├── routes/
+│   ├── authRoutes.js
+│   ├── projectRoutes.js
+│   └── userRoutes.js
+│
+├── middleware/
+│   ├── authMiddleware.js
+│   └── errorMiddleware.js
+│
+├── config/
+│   ├── db.js
+│   └── stripe.js
+│
+├── utils/
+│   └── helpers.js
+│
+├── app.js
+├── server.js
+├── .env
+└── README.md
