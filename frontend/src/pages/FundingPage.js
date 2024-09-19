@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getProjectById, createPaymentIntent } from "../utils/api"; // Correct import
+import { getProjectById, createPaymentIntent } from "../utils/api";
 
 const FundingPage = () => {
   const { id } = useParams();
@@ -13,7 +13,7 @@ const FundingPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await getProjectById(id); // Use the correct function
+        const response = await getProjectById(id);
         setProject(response);
       } catch (error) {
         setError("Failed to load project details. Please try again later.");
@@ -41,7 +41,7 @@ const FundingPage = () => {
         amount: Number(amount),
       });
       setSuccess("Your contribution has been successful!");
-      setAmount(""); // Clear the input field
+      setAmount("");
     } catch (error) {
       setError("Failed to contribute. Please try again later.");
       console.error("Error contributing to project:", error);
@@ -54,10 +54,26 @@ const FundingPage = () => {
 
   return (
     <div className="container mt-4">
-      <h1>Fund Project: {project.title}</h1>
-      <p>{project.description}</p>
+      <h1 className="text-center mb-4">Fund Project: {project.title}</h1>
+      <div className="card shadow-sm mb-4" style={{ borderRadius: "0.5rem" }}>
+        <div className="card-body">
+          <h5 className="card-title">Project Overview</h5>
+          <p className="card-text">{project.description}</p>
+          <p>
+            <strong>Funding Goal:</strong> ${project.fundingGoal}
+          </p>
+          <p>
+            <strong>Funds Raised:</strong> ${project.fundsRaised}
+          </p>
+          <p>
+            <strong>Deadline:</strong>{" "}
+            {new Date(project.deadline).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+
+      <h4 className="mb-3">Enter Amount to Contribute</h4>
       <div className="form-group">
-        <label htmlFor="amount">Enter amount to contribute:</label>
         <input
           id="amount"
           type="number"
@@ -66,6 +82,7 @@ const FundingPage = () => {
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Enter amount"
           min="1"
+          style={{ maxWidth: "300px" }} // Optional: limit width
         />
       </div>
       <button

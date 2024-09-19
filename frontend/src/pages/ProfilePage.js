@@ -36,20 +36,24 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="container my-4">
+    <div className="container my-4" style={{ maxWidth: "800px" }}>
       {user ? (
         <div>
-          <h2>{user.name}'s Profile</h2>
-          <p>Email: {user.email}</p>
+          <h2 className="text-center mb-4">{user.name}'s Profile</h2>
+          <p className="text-center">Email: {user.email}</p>
           <button
             className="btn btn-primary mb-3"
             onClick={() => setShowForm(!showForm)}
           >
             {showForm ? "Cancel" : "Create New Project"}
           </button>
-          {showForm && <ProjectForm onProjectCreated={handleProjectCreated} />}
+          {showForm && (
+            <div className="mb-4">
+              <ProjectForm onProjectCreated={handleProjectCreated} />
+            </div>
+          )}
 
-          <h3>My Projects</h3>
+          <h3 className="mt-4">My Projects</h3>
           {loading ? (
             <div className="text-center">Loading your projects...</div>
           ) : error ? (
@@ -63,7 +67,7 @@ const ProfilePage = () => {
                   </div>
                 ))
               ) : (
-                <p>No projects found.</p>
+                <p className="text-center">No projects found.</p>
               )}
             </div>
           )}
