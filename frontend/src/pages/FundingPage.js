@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import api from "../utils/api";
+import { getProjectById, createPaymentIntent } from "../utils/api"; // Correct import
 
 const FundingPage = () => {
   const { id } = useParams();
@@ -13,8 +13,8 @@ const FundingPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await api.get(`/projects/${id}`);
-        setProject(response.data);
+        const response = await getProjectById(id); // Use the correct function
+        setProject(response);
       } catch (error) {
         setError("Failed to load project details. Please try again later.");
         console.error("Error fetching project:", error);
@@ -27,12 +27,19 @@ const FundingPage = () => {
   }, [id]);
 
   const handleFunding = async () => {
-    if (amount <= 0) {
+    setError("");
+    setSuccess("");
+
+    if (!amount || amount <= 0) {
       setError("Please enter a valid amount.");
       return;
     }
+
     try {
-      await api.post(`/projects/${project._id}/fund`, { amount });
+      await createPaymentIntent({
+        projectId: project._id,
+        amount: Number(amount),
+      });
       setSuccess("Your contribution has been successful!");
       setAmount(""); // Clear the input field
     } catch (error) {

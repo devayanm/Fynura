@@ -6,6 +6,7 @@ const projectRoutes = require('./routes/projectRoutes');
 const userRoutes = require('./routes/userRoutes');
 const errorMiddleware = require('./middleware/errorMiddleware');
 const paymentRoutes = require('./routes/paymentRoutes');
+const mentorshipRoutes = require('./routes/mentorshipRoutes');
 
 
 const app = express();
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/mentorship', mentorshipRoutes)
 
 app.use(errorMiddleware);
 

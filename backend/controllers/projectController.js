@@ -42,6 +42,31 @@ exports.getProjects = async (req, res) => {
   }
 };
 
+exports.getProjectById = async (req, res) => {
+  try {
+    const project = await Project.findById(req.params.id).populate("creator");
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json(project);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getUserProjects = async (req, res) => {
+  try {
+    const projects = await Project.find({ creator: req.user.id }).populate(
+      "creator"
+    );
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 exports.updateProject = async (req, res) => {
   try {
     const { title, description, fundingGoal } = req.body;

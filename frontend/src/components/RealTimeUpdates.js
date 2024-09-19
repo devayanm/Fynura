@@ -44,7 +44,7 @@ const RealTimeUpdates = () => {
           </Badge>
         )}
       </DropdownToggle>
-      <DropdownMenu right>
+      <DropdownMenu end>
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <DropdownItem

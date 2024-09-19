@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/auth";
 import { FaBars, FaUserCircle } from "react-icons/fa";
-import RealTimeUpdates from "./RealTimeUpdates"; // Importing the notification component
+import RealTimeUpdates from "./RealTimeUpdates";
+import { logoutUser } from "../utils/api";
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -17,6 +21,33 @@ const Navbar = () => {
     };
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownOpen && !event.target.closest(".dropdown")) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
+
+  const toggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
+
+  if (loading) return null;
+
   return (
     <nav
       className="navbar"
@@ -26,21 +57,31 @@ const Navbar = () => {
         zIndex: 1000,
         borderBottom: "1px solid #e0e0e0",
         backgroundColor: "#fff",
-        padding: "10px 40px",
+        padding: "10px 20px",
       }}
     >
-      {isMobile ? <MobileNavbar /> : <DesktopNavbar />}
+      {isMobile ? (
+        <MobileNavbar
+          user={user}
+          handleLogout={handleLogout}
+          dropdownOpen={dropdownOpen}
+          toggleDropdown={toggleDropdown}
+        />
+      ) : (
+        <DesktopNavbar
+          user={user}
+          handleLogout={handleLogout}
+          dropdownOpen={dropdownOpen}
+          toggleDropdown={toggleDropdown}
+        />
+      )}
     </nav>
   );
 };
 
 const UserMenu = ({ user, handleLogout, dropdownOpen, toggleDropdown }) => (
-  <div
-    className="d-flex align-items-center justify-content-evenly"
-    style={{ width: "150px" }}
-  >
+  <div className="d-flex align-items-center" style={{ gap: "15px" }}>
     <RealTimeUpdates />
-
     {user ? (
       <div className="dropdown">
         <FaUserCircle
@@ -58,22 +99,33 @@ const UserMenu = ({ user, handleLogout, dropdownOpen, toggleDropdown }) => (
               marginTop: "10px",
               padding: "10px",
               backgroundColor: "#fff",
-              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-              borderRadius: "10px",
-              width: "200px",
+              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+              borderRadius: "8px",
+              zIndex: 1000,
             }}
           >
             <Link
               to="/profile"
               className="dropdown-item"
-              style={{ padding: "10px", color: "#333" }}
+              style={{
+                color: "#333",
+                backgroundColor: "#fff",
+                textDecoration: "none",
+                padding: "10px",
+              }}
             >
               Profile
             </Link>
             <div
               className="dropdown-item"
               onClick={handleLogout}
-              style={{ padding: "10px", cursor: "pointer", color: "#333" }}
+              style={{
+                cursor: "pointer",
+                color: "#d9534f",
+                backgroundColor: "#fff",
+                padding: "10px",
+                textDecoration: "none",
+              }}
             >
               Logout
             </div>
@@ -82,33 +134,13 @@ const UserMenu = ({ user, handleLogout, dropdownOpen, toggleDropdown }) => (
       </div>
     ) : (
       <div
-        className="d-flex align-items-center justify-content-between ms-3 me-5"
+        className="d-flex align-items-center justify-content-between"
         style={{ gap: "15px" }}
       >
-        <Link
-          className="nav-link me-3"
-          to="/login"
-          style={{
-            color: "#333",
-            padding: "10px 20px",
-            borderRadius: "5px",
-            border: "1px solid #333",
-            textAlign: "center",
-          }} 
-        >
+        <Link className="nav-link" to="/login" style={linkStyle}>
           Login
         </Link>
-        <Link
-          className="nav-link me-5"
-          to="/register"
-          style={{
-            color: "#333",
-            padding: "10px 20px",
-            borderRadius: "5px",
-            border: "1px solid #333",
-            textAlign: "center",
-          }} 
-        >
+        <Link className="nav-link" to="/register" style={linkStyle}>
           Register
         </Link>
       </div>
@@ -116,83 +148,74 @@ const UserMenu = ({ user, handleLogout, dropdownOpen, toggleDropdown }) => (
   </div>
 );
 
-const DesktopNavbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev);
-  };
-
-  return (
-    <div
-      className="d-flex justify-content-between align-items-center"
-      style={{ width: "100%" }}
-    >
-      <Link
-        className="navbar-brand"
-        to="/"
-        style={{
-          fontWeight: "bold",
-          fontSize: "1.5rem",
-          color: "#333",
-        }}
-      >
-        Fynura
-      </Link>
-
-      <ul className="navbar-nav d-flex justify-content-center flex-row">
-        <li className="nav-item mx-3">
-          <Link className="nav-link" to="/" style={{ color: "#333" }}>
-            Home
-          </Link>
-        </li>
-        <li className="nav-item mx-3">
-          <Link className="nav-link" to="/projects/dashboard">
-            Dashboard
-          </Link>
-        </li>
-        <li className="nav-item mx-3">
-          <Link className="nav-link" to="/community">
-            Community
-          </Link>
-        </li>
-      </ul>
-
-      <UserMenu
-        user={user}
-        handleLogout={handleLogout}
-        dropdownOpen={dropdownOpen}
-        toggleDropdown={toggleDropdown}
-      />
-    </div>
-  );
+const linkStyle = {
+  color: "#333",
+  padding: "10px 15px",
+  borderRadius: "5px",
+  border: "1px solid #333",
+  textAlign: "center",
+  textDecoration: "none",
+  transition: "background-color 0.2s",
 };
 
-const MobileNavbar = () => {
-  const { user, logout } = useAuth();
+const DesktopNavbar = ({
+  user,
+  handleLogout,
+  dropdownOpen,
+  toggleDropdown,
+}) => (
+  <div
+    className="d-flex justify-content-between align-items-center"
+    style={{ width: "100%" }}
+  >
+    <Link
+      className="navbar-brand"
+      to="/"
+      style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#333" }}
+    >
+      Fynura
+    </Link>
+
+    <ul className="navbar-nav d-flex justify-content-center flex-row">
+      <li className="nav-item mx-3">
+        <Link className="nav-link" to="/" style={{ color: "#333" }}>
+          Home
+        </Link>
+      </li>
+      <li className="nav-item mx-3">
+        <Link className="nav-link" to="/explore">
+          Explore
+        </Link>
+      </li>
+      <li className="nav-item mx-3">
+        <Link className="nav-link" to="/projects/dashboard">
+          Dashboard
+        </Link>
+      </li>
+      <li className="nav-item mx-3">
+        <Link className="nav-link" to="/community">
+          Community
+        </Link>
+      </li>
+    </ul>
+
+    <UserMenu
+      user={user}
+      handleLogout={handleLogout}
+      dropdownOpen={dropdownOpen}
+      toggleDropdown={toggleDropdown}
+    />
+  </div>
+);
+
+const MobileNavbar = ({ user, handleLogout, dropdownOpen, toggleDropdown }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
 
   const toggleHamburger = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const toggleDropdown = () => {
-    setDropdownOpen((prev) => !prev);
-  };
+  if (!user) return null;
 
   return (
     <div
@@ -204,15 +227,10 @@ const MobileNavbar = () => {
         onClick={toggleHamburger}
         style={{ cursor: "pointer", color: "#333" }}
       />
-      {/* Center: Logo */}
       <Link
         className="navbar-brand mx-auto"
         to="/"
-        style={{
-          fontWeight: "bold",
-          fontSize: "1.5rem",
-          color: "#333",
-        }}
+        style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#333" }}
       >
         Fynura
       </Link>
@@ -222,43 +240,77 @@ const MobileNavbar = () => {
         dropdownOpen={dropdownOpen}
         toggleDropdown={toggleDropdown}
       />
-      {isOpen && (
-        <ul
-          className="navbar-nav"
-          style={{
-            position: "absolute",
-            top: "60px",
-            left: 0,
-            backgroundColor: "#fff",
-            width: "100%",
-            padding: "20px",
-            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-          }}
-        >
-          <li className="nav-item">
-            <Link className="nav-link" to="/" style={{ color: "#333" }}>
+
+      {/* Sidebar */}
+      <div
+        className="sidebar"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: isOpen ? "0" : "-250px",
+          width: "250px",
+          height: "100vh",
+          backgroundColor: "#fff",
+          padding: "20px",
+          boxShadow: "2px 0 12px rgba(0, 0, 0, 0.1)",
+          transition: "left 0.3s ease",
+          zIndex: 999,
+        }}
+      >
+        <ul className="navbar-nav" style={{ listStyle: "none", padding: 0 }}>
+          <li className="nav-item" style={{ marginBottom: "10px" }}>
+            <Link
+              className="nav-link"
+              to="/"
+              style={{ color: "#333", padding: "10px", display: "block" }}
+            >
               Home
             </Link>
           </li>
-          <li className="nav-item">
+          <li className="nav-item" style={{ marginBottom: "10px" }}>
+            <Link
+              className="nav-link"
+              to="/explore"
+              style={{ color: "#333", padding: "10px", display: "block" }}
+            >
+              Explore
+            </Link>
+          </li>
+          <li className="nav-item" style={{ marginBottom: "10px" }}>
             <Link
               className="nav-link"
               to="/projects/dashboard"
-              style={{ color: "#333" }}
+              style={{ color: "#333", padding: "10px", display: "block" }}
             >
               Dashboard
             </Link>
           </li>
-          <li className="nav-item">
+          <li className="nav-item" style={{ marginBottom: "10px" }}>
             <Link
               className="nav-link"
               to="/community"
-              style={{ color: "#333" }}
+              style={{ color: "#333", padding: "10px", display: "block" }}
             >
               Community
             </Link>
           </li>
         </ul>
+      </div>
+
+      {/* Overlay for clicking outside to close */}
+      {isOpen && (
+        <div
+          onClick={toggleHamburger}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 998,
+          }}
+        />
       )}
     </div>
   );

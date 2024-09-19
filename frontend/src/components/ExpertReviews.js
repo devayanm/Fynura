@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../utils/api';
+import { getReviewsByProjectId } from '../utils/api'; 
 
 const ExpertReviews = ({ projectId }) => {
   const [reviews, setReviews] = useState([]);
@@ -9,8 +9,8 @@ const ExpertReviews = ({ projectId }) => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await api.get(`/projects/${projectId}/reviews`);
-        setReviews(response.data);
+        const response = await getReviewsByProjectId(projectId); 
+        setReviews(response);
       } catch (error) {
         setError('Failed to load reviews. Please try again later.');
         console.error('Error fetching reviews:', error);
@@ -29,16 +29,20 @@ const ExpertReviews = ({ projectId }) => {
     <div className="container mt-4">
       <h2 className="mb-4">Expert Reviews</h2>
       <div className="row">
-        {reviews.map((review) => (
-          <div className="col-md-4 mb-3" key={review._id}>
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">{review.expertName}</h5>
-                <p className="card-text">{review.feedback}</p>
+        {reviews.length === 0 ? (
+          <div className="col-12 text-center">No reviews available.</div>
+        ) : (
+          reviews.map((review) => (
+            <div className="col-md-4 mb-3" key={review._id}>
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{review.expertName}</h5>
+                  <p className="card-text">{review.feedback}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from './api';
+import { getUserProfile } from './api'; // Import the function
 
 const AuthContext = createContext();
 
@@ -12,36 +12,28 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const userData = await getUserProfile();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const token = localStorage.getItem('token');
     if (token) {
-      api
-        .get('/auth/me', { headers: { Authorization: `Bearer ${token}` } })
-        .then((response) => {
-          setUser(response.data.user);
-        })
-        .catch((error) => {
-          console.error('Error fetching user:', error);
-        });
+      fetchUserProfile();
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
-
-  const login = async (userData) => {
-    const response = await api.post('/auth/login', userData);
-    localStorage.setItem('token', response.data.token);
-    setUser(response.data.user);
-    return response.data;
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  };
 
   const value = {
     user,
-    login,
-    logout,
+    setUser,
     loading,
   };
 

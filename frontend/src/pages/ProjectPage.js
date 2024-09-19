@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../utils/api";
+import { getProjectById } from "../utils/api"; 
 import ExpertReviews from "../components/ExpertReviews";
 
 const ProjectPage = () => {
@@ -12,8 +12,8 @@ const ProjectPage = () => {
 
   const fetchProject = async () => {
     try {
-      const response = await api.get(`/projects/${id}`);
-      setProject(response.data);
+      const response = await getProjectById(id); 
+      setProject(response);
     } catch (error) {
       setError("Failed to load project details. Please try again later.");
       console.error("Error fetching project:", error);

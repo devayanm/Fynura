@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
-import ProjectCard from '../components/ProjectCard';
-import ProjectForm from '../components/ProjectForm';
-import { useAuth } from '../utils/auth'; // Use AuthContext to get current user
+import React, { useState, useEffect } from "react";
+import { getUserProjects } from "../utils/api";
+import ProjectCard from "../components/ProjectCard";
+import ProjectForm from "../components/ProjectForm";
+import { useAuth } from "../utils/auth";
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchUserProjects = async () => {
+    setLoading(true);
     try {
-      const response = await api.get('/projects/user');
-      setProjects(response.data);
+      const response = await getUserProjects();
+      setProjects(response);
     } catch (error) {
-      console.error('Error fetching user projects:', error);
+      console.error("Error fetching user projects:", error);
+      setError("Failed to load projects. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,8 +36,8 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="container">
-      {user && (
+    <div className="container my-4">
+      {user ? (
         <div>
           <h2>{user.name}'s Profile</h2>
           <p>Email: {user.email}</p>
@@ -39,21 +45,32 @@ const ProfilePage = () => {
             className="btn btn-primary mb-3"
             onClick={() => setShowForm(!showForm)}
           >
-            {showForm ? 'Cancel' : 'Create New Project'}
+            {showForm ? "Cancel" : "Create New Project"}
           </button>
           {showForm && <ProjectForm onProjectCreated={handleProjectCreated} />}
+
           <h3>My Projects</h3>
-          <div className="row">
-            {projects.length > 0 ? (
-              projects.map((project) => (
-                <div className="col-md-4 mb-3" key={project._id}>
-                  <ProjectCard project={project} />
-                </div>
-              ))
-            ) : (
-              <p>No projects found.</p>
-            )}
-          </div>
+          {loading ? (
+            <div className="text-center">Loading your projects...</div>
+          ) : error ? (
+            <div className="alert alert-danger">{error}</div>
+          ) : (
+            <div className="row">
+              {projects.length > 0 ? (
+                projects.map((project) => (
+                  <div className="col-md-4 mb-3" key={project._id}>
+                    <ProjectCard project={project} />
+                  </div>
+                ))
+              ) : (
+                <p>No projects found.</p>
+              )}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center">
+          <p>Please log in to view your profile.</p>
         </div>
       )}
     </div>

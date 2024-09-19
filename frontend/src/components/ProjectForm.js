@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../utils/api";
+import { createProject } from "../utils/api"; 
 
 const ProjectForm = ({ onProjectCreated }) => {
   const [title, setTitle] = useState("");
@@ -25,17 +25,21 @@ const ProjectForm = ({ onProjectCreated }) => {
     }
 
     try {
-      await api.post("/projects", { title, description, goals, fundingGoal });
+      await createProject({ title, description, goals, fundingGoal }); 
       setSuccess("Project created successfully!");
-      onProjectCreated(); 
-      setTitle("");
-      setDescription("");
-      setGoals("");
-      setFundingGoal("");
+      onProjectCreated();
+      resetForm();
     } catch (error) {
       setError("Error creating project. Please try again.");
       console.error("Error creating project:", error);
     }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setGoals("");
+    setFundingGoal("");
   };
 
   return (
@@ -81,7 +85,7 @@ const ProjectForm = ({ onProjectCreated }) => {
             type="number"
             className="form-control"
             value={fundingGoal}
-            onChange={(e) => setFundingGoal(e.target.value)}
+            onChange={(e) => setFundingGoal(Number(e.target.value))}
           />
         </div>
         <button type="submit" className="btn btn-primary">

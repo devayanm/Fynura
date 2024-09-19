@@ -1,32 +1,44 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 const ProjectCard = ({ project }) => {
-  const navigate = useNavigate();
-  const progress = (project.amountRaised / project.fundingGoal) * 100;
+  const progressPercentage = (project.fundsRaised / project.fundingGoal) * 100;
 
   return (
-    <div
-      className="card shadow-sm h-100"
-      style={{ cursor: 'pointer' }}
-      onClick={() => navigate(`/project/${project._id}`)}
-    >
-      <div className="card-body d-flex flex-column">
+    <div className="card h-100">
+      <div className="card-body">
         <h5 className="card-title">{project.title}</h5>
-        <p className="card-text flex-grow-1">{project.description}</p>
-        <p>Funding Goal: ${project.fundingGoal}</p>
-        <p>Amount Raised: ${project.amountRaised}</p>
-        <div className="progress">
-          <div
-            className="progress-bar"
-            role="progressbar"
-            style={{ width: `${progress}%` }}
-            aria-valuenow={progress}
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
-            {Math.round(progress)}%
+        <p className="card-text">{project.description}</p>
+
+        {/* Funding Goal and Progress Bar */}
+        {project.fundingGoal && (
+          <div>
+            <div className="progress mb-2">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${progressPercentage}%` }}
+                aria-valuenow={progressPercentage}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                {progressPercentage.toFixed(0)}%
+              </div>
+            </div>
+            <p>
+              Raised: ${project.fundsRaised} / Goal: ${project.fundingGoal}
+            </p>
           </div>
+        )}
+
+        {/* Call to Action: Join or Collaborate */}
+        <div className="d-flex justify-content-between align-items-center">
+          <Link to={`/projects/${project._id}`} className="btn btn-primary">
+            View Details
+          </Link>
+          <button className="btn btn-success">
+            {project.isCollaborating ? "Collaborate" : "Join"}
+          </button>
         </div>
       </div>
     </div>
